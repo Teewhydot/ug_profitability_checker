@@ -5,13 +5,17 @@ class ResultsPage extends StatelessWidget {
   final double profitPercentage;
   final double p2pRate;
   final double btcPrice;
+  final double btcAmount;
+  final double ugxToBtcPrice;
+  final double equivalentUsdtReceived;
 
   const ResultsPage(
       {super.key,
       required this.profit,
       required this.profitPercentage,
       required this.btcPrice,
-      required this.p2pRate});
+      required this.equivalentUsdtReceived,
+      required this.p2pRate, required this.btcAmount, required this.ugxToBtcPrice});
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +97,18 @@ class ResultsPage extends StatelessWidget {
             height: 20,
           ),
           Text('BTC Price:  $btcPrice', style: normalTextStyle),
+          const SizedBox(
+            height: 20,
+          ),
+          Text('Btc amount:   $btcAmount',style: normalTextStyle,),
+          const SizedBox(
+            height: 20,
+          ),
+          Text('Ugx to btc rate:   $ugxToBtcPrice',style:  normalTextStyle,),
+          const SizedBox(
+            height: 20,
+          ),
+          Text('Equivalent usdt received:   $equivalentUsdtReceived',style:  normalTextStyle,),
         ],
       ),
     );

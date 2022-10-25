@@ -37,15 +37,18 @@ class _UgCheckerState extends State<UgChecker> {
   bool _isLoading = false;
   double capital = 0;
   double equivalentUgx = 0;
-  double btcToUgxPrice = 73023087;
+  double btcToUgxPrice = 74307337;
   double profit = 0;
   double profitPercentage = 0;
   double p2pRate = 0;
   double btcPrice = 0;
+  double btcAmount = 0;
+  double nairaBtcPrice = 0;
+  double equivalentUsdtReceived = 0;
 
   Future checkProfitability(double ugxExchangeRate) async {
     //   CALCULATE UGX TO BTC RATE
-    double btcAmount = (equivalentUgx / btcToUgxPrice) - 0.0001;
+    btcAmount = (equivalentUgx / btcToUgxPrice) - 0.00001;
     final http.Response response = await http.get(Uri.parse(
         'https://api.binance.com/api/v3/ticker/price?symbol=USDTNGN'));
     final http.Response response2 = await http.get(Uri.parse(
@@ -57,12 +60,13 @@ class _UgCheckerState extends State<UgChecker> {
       var decodedResponse2 = jsonDecode(response2.body);
       // decode the second request and get the price of BTC in USDT
       btcPrice = double.parse(decodedResponse2['price']);
+      equivalentUsdtReceived = btcAmount * btcPrice;
       // decode the first request to get the price of usdt in ngn
       var usdToNairaRate = double.parse(decodedResponse1['price']);
       //calculate btc price in naira
-      var nairaBtcPrice = btcPrice * usdToNairaRate;
+      nairaBtcPrice = btcPrice * usdToNairaRate;
       // mock way to get the current usdt price in binance p2p market
-      p2pRate = usdToNairaRate - 10;
+      p2pRate = usdToNairaRate;
       //after selling on binance
       double nairaEquivalent = btcAmount * nairaBtcPrice;
       profit = nairaEquivalent - capital;
@@ -126,6 +130,27 @@ class _UgCheckerState extends State<UgChecker> {
                       EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                 ),
               ),
+              TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                maxLength: 15,
+                validator:
+                    ValidationBuilder().minLength(5).maxLength(15).build(),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    btcToUgxPrice = double.parse(value);
+                  });
+                },
+                decoration: const InputDecoration(
+                  hintText:
+                      'Enter UGX BTC price displayed on Uganda chipper cash',
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                ),
+              ),
               const SizedBox(
                 height: 40.0,
               ),
@@ -149,8 +174,12 @@ class _UgCheckerState extends State<UgChecker> {
                               builder: (context) => ResultsPage(
                                   btcPrice: btcPrice,
                                   p2pRate: p2pRate,
+                                  equivalentUsdtReceived:
+                                      equivalentUsdtReceived,
                                   profit: profit,
-                                  profitPercentage: profitPercentage),
+                                  profitPercentage: profitPercentage,
+                                  btcAmount: btcAmount,
+                                  ugxToBtcPrice: btcToUgxPrice),
                             ),
                           );
                         } else {
